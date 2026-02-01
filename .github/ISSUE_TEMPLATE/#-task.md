@@ -1,7 +1,7 @@
 ---
 name: "# TASK"
 about: Task Issue
-title: "[# TASK] "
+title: "[# TASK]: "
 labels: ''
 assignees: ''
 
