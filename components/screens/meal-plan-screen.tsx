@@ -127,19 +127,6 @@ export function MealPlanScreen({ onBack }: MealPlanScreenProps) {
         title="献立カレンダー"
         showBack
         onBack={onBack}
-        rightElement={
-          <button
-            type="button"
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-primary hover:bg-accent"
-            aria-label="献立を追加"
-            onClick={() => {
-              const todayKey = formatDateKey(new Date("2026-02-09"))
-              setSelectingDate(todayKey)
-            }}
-          >
-            <Plus className="h-5 w-5" />
-          </button>
-        }
       />
 
       {/* Week Switcher */}
