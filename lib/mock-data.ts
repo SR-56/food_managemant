@@ -13,6 +13,7 @@ export interface Recipe {
   id: string
   name: string
   ingredients: string[] // ingredient IDs
+  url?: string
 }
 
 export interface MealPlan {
