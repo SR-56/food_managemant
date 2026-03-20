@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Search, Pencil, Trash2, X, Check } from "lucide-react"
+import { Plus, Search, Pencil, Trash2, X, Check, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -45,6 +45,7 @@ export function RecipeScreen({ onBack }: RecipeScreenProps) {
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [editName, setEditName] = useState("")
+  const [editUrl, setEditUrl] = useState("")
   const [editIngredients, setEditIngredients] = useState<string[]>([])
   const [isNewRecipe, setIsNewRecipe] = useState(false)
   const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false)
@@ -67,10 +68,12 @@ export function RecipeScreen({ onBack }: RecipeScreenProps) {
     if (recipe) {
       setIsNewRecipe(false)
       setEditName(recipe.name)
+      setEditUrl(recipe.url ?? "")
       setEditIngredients([...recipe.ingredients])
     } else {
       setIsNewRecipe(true)
       setEditName("")
+      setEditUrl("")
       setEditIngredients([])
     }
     setView("edit")
@@ -84,6 +87,7 @@ export function RecipeScreen({ onBack }: RecipeScreenProps) {
         id: `r${Date.now()}`,
         name: editName.trim(),
         ingredients: editIngredients,
+        ...(editUrl.trim() && { url: editUrl.trim() }),
       }
       setRecipeList((prev) => [...prev, newRecipe])
       setSelectedRecipeId(newRecipe.id)
@@ -91,7 +95,7 @@ export function RecipeScreen({ onBack }: RecipeScreenProps) {
       setRecipeList((prev) =>
         prev.map((r) =>
           r.id === selectedRecipeId
-            ? { ...r, name: editName.trim(), ingredients: editIngredients }
+            ? { ...r, name: editName.trim(), ingredients: editIngredients, url: editUrl.trim() || undefined }
             : r
         )
       )
@@ -213,6 +217,20 @@ export function RecipeScreen({ onBack }: RecipeScreenProps) {
         />
 
         <main className="flex-1 overflow-y-auto p-4 pb-24">
+          {selectedRecipe.url && (
+            <div className="mb-4">
+              <h2 className="mb-2 text-sm font-semibold text-foreground">参考URL</h2>
+              <a
+                href={selectedRecipe.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-primary hover:bg-accent"
+              >
+                <ExternalLink className="h-4 w-4 shrink-0" />
+                <span className="break-all">{selectedRecipe.url}</span>
+              </a>
+            </div>
+          )}
           <h2 className="mb-3 text-sm font-semibold text-foreground">必要な食材</h2>
           <div className="flex flex-col gap-1 rounded-xl border border-border bg-card">
             {selectedRecipe.ingredients.map((ingredientId) => {
@@ -319,6 +337,21 @@ export function RecipeScreen({ onBack }: RecipeScreenProps) {
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 placeholder="例: カレーライス"
+                className="h-12 text-foreground"
+              />
+            </div>
+
+            {/* URL */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="recipeUrl" className="text-sm font-medium text-foreground">
+                参考URL（任意）
+              </Label>
+              <Input
+                id="recipeUrl"
+                type="url"
+                value={editUrl}
+                onChange={(e) => setEditUrl(e.target.value)}
+                placeholder="https://..."
                 className="h-12 text-foreground"
               />
             </div>
