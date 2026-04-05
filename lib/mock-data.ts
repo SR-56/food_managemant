@@ -75,13 +75,13 @@ export const ingredients: Ingredient[] = [
 
 // ---- Recipes ----
 export const recipes: Recipe[] = [
-  { id: "r1", name: "カレーライス", ingredients: ["v1", "v2", "v3", "m1", "s7"] },
+  { id: "r1", name: "カレーライス", ingredients: ["v1", "v2", "v3", "m1", "s7"], url: "https://cookpad.com/recipe/1234567" },
   { id: "r2", name: "肉じゃが", ingredients: ["v1", "v2", "v3", "m3", "s1", "s2", "s5"] },
   { id: "r3", name: "味噌汁", ingredients: ["o1", "v10", "s4"] },
-  { id: "r4", name: "鶏の照り焼き", ingredients: ["m2", "s1", "s2", "s5"] },
+  { id: "r4", name: "鶏の照り焼き", ingredients: ["m2", "s1", "s2", "s5"], url: "https://cookpad.com/recipe/2345678" },
   { id: "r5", name: "ほうれん草のおひたし", ingredients: ["v5", "s1"] },
   { id: "r6", name: "サケの塩焼き", ingredients: ["f1", "s6"] },
-  { id: "r7", name: "エビチリ", ingredients: ["f3", "v3", "v6"] },
+  { id: "r7", name: "エビチリ", ingredients: ["f3", "v3", "v6"], url: "https://cookpad.com/recipe/3456789" },
   { id: "r8", name: "なすの味噌炒め", ingredients: ["v7", "m1", "s4", "s2"] },
   { id: "r9", name: "豚バラ大根", ingredients: ["m1", "v9", "s1", "s2", "s3"] },
   { id: "r10", name: "パスタ ペペロンチーノ", ingredients: ["o4", "s6"] },

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, X, ChevronLeft, ChevronRight, Search, CheckCircle2 } from "lucide-react"
+import { Plus, X, ChevronLeft, ChevronRight, Search, CheckCircle2, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -201,9 +201,25 @@ export function MealPlanScreen({ onBack }: MealPlanScreenProps) {
                 {recipe ? (
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between rounded-lg bg-accent px-3 py-2.5">
-                      <span className="text-sm font-medium text-foreground">
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
                         {recipe.name}
                       </span>
+                      {recipe.url ? (
+                        <a
+                          href={recipe.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-primary hover:bg-primary/10"
+                          aria-label={`${recipe.name}のレシピURLを開く`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      ) : (
+                        <span className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground/40">
+                          <ExternalLink className="h-4 w-4" />
+                        </span>
+                      )}
                       <button
                         type="button"
                         onClick={() => handleRemoveRecipe(dateKey)}
