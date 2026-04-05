@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { householdMembers } from "@/lib/mock-data"
+import { householdMembers, type HouseholdMember } from "@/lib/mock-data"
 
 interface SettingsScreenProps {
   onBack: () => void
@@ -36,9 +36,10 @@ export function SettingsScreen({ onBack, onLogout }: SettingsScreenProps) {
   const [tempName, setTempName] = useState(householdName)
   const [showAddMember, setShowAddMember] = useState(false)
   const [newMemberEmail, setNewMemberEmail] = useState("")
+  const [members, setMembers] = useState<HouseholdMember[]>(householdMembers)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
-  const currentUser = householdMembers.find((m) => m.isCurrentUser)
+  const currentUser = members.find((m) => m.isCurrentUser)
 
   const handleSaveName = () => {
     if (tempName.trim()) {
@@ -48,7 +49,15 @@ export function SettingsScreen({ onBack, onLogout }: SettingsScreenProps) {
   }
 
   const handleAddMember = () => {
-    // Prototype: just close the dialog
+    const email = newMemberEmail.trim()
+    if (!email) return
+    const newMember: HouseholdMember = {
+      id: `u${Date.now()}`,
+      name: email.split("@")[0],
+      email,
+      isCurrentUser: false,
+    }
+    setMembers((prev) => [...prev, newMember])
     setNewMemberEmail("")
     setShowAddMember(false)
   }
@@ -118,11 +127,11 @@ export function SettingsScreen({ onBack, onLogout }: SettingsScreenProps) {
             家庭メンバー
           </h2>
           <div className="rounded-xl border border-border bg-card">
-            {householdMembers.map((member, index) => (
+            {members.map((member, index) => (
               <div
                 key={member.id}
                 className={`flex items-center gap-3 px-4 py-3.5 ${
-                  index < householdMembers.length - 1 ? "border-b border-border" : ""
+                  index < members.length - 1 ? "border-b border-border" : ""
                 }`}
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent">
