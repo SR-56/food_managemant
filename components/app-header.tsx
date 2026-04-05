@@ -1,18 +1,9 @@
 "use client"
 
 import React from "react"
+import Image from "next/image"
 import { ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-function BreadIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 64 64" fill="none" aria-hidden="true">
-      <ellipse cx="32" cy="38" rx="24" ry="16" fill="hsl(33, 41%, 59%)" />
-      <ellipse cx="32" cy="34" rx="22" ry="14" fill="hsl(33, 50%, 72%)" />
-      <path d="M14 34c0-8 8-18 18-18s18 10 18 18" stroke="hsl(33, 41%, 49%)" strokeWidth="2" fill="hsl(33, 55%, 78%)" />
-    </svg>
-  )
-}
 
 interface AppHeaderProps {
   title: string
@@ -45,7 +36,7 @@ export function AppHeader({
             <ChevronLeft className="h-5 w-5" />
           </button>
         ) : showLogo ? (
-          <BreadIcon className="h-7 w-7" />
+          <Image src="/logo-header.png" width={36} height={36} alt="FooCo ロゴ" />
         ) : null}
       </div>
       <h1 className="flex-1 text-center text-base font-semibold text-foreground">

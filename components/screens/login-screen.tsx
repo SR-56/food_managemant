@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
 interface LoginScreenProps {
@@ -30,29 +31,6 @@ function GoogleIcon({ className }: { className?: string }) {
   )
 }
 
-function BreadIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 64 64"
-      fill="none"
-      aria-hidden="true"
-    >
-      <ellipse cx="32" cy="38" rx="24" ry="16" fill="hsl(33, 41%, 59%)" />
-      <ellipse cx="32" cy="34" rx="22" ry="14" fill="hsl(33, 50%, 72%)" />
-      <path
-        d="M14 34c0-8 8-18 18-18s18 10 18 18"
-        stroke="hsl(33, 41%, 49%)"
-        strokeWidth="2"
-        fill="hsl(33, 55%, 78%)"
-      />
-      <ellipse cx="24" cy="30" rx="3" ry="2" fill="hsl(33, 41%, 59%)" opacity="0.4" />
-      <ellipse cx="34" cy="28" rx="4" ry="2.5" fill="hsl(33, 41%, 59%)" opacity="0.3" />
-      <ellipse cx="42" cy="32" rx="2.5" ry="1.8" fill="hsl(33, 41%, 59%)" opacity="0.35" />
-    </svg>
-  )
-}
-
 export function LoginScreen({ onLogin }: LoginScreenProps) {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -71,7 +49,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <Card className="w-[90%] max-w-[400px] border-border shadow-lg">
         <CardHeader className="flex flex-col items-center gap-3 pb-2 pt-8">
-          <BreadIcon className="h-14 w-14" />
+          <Image src="/logo-login.png" width={128} height={128} alt="FooCo ロゴ" />
           <h1 className="text-2xl font-bold text-foreground">FooCo</h1>
           <p className="text-center text-sm leading-relaxed text-muted-foreground">
             献立に基づいた買い物リストで、

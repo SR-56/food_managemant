@@ -13,6 +13,10 @@ const notoSansJP = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: 'FooCo - 食材管理アプリ',
   description: '献立に基づいた買い物リストで、無駄のない食材管理',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/apple-icon.png',
+  },
 }
 
 export const viewport: Viewport = {
