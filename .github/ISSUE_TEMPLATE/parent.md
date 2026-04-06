@@ -1,7 +1,7 @@
 ---
-name: "# STORY"
-about: Story Issue
-title: "[# STORY]: "
+name: "PARENT"
+about: Parent Issue
+title: "[PARENT]: "
 labels: ''
 assignees: ''
 
