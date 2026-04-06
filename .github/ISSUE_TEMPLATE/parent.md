@@ -1,7 +1,7 @@
 ---
 name: "PARENT"
 about: Parent Issue
-title: "[PARENT]: "
+title: "[PARENT] "
 labels: ''
 assignees: ''
 
