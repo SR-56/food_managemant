@@ -1,22 +1,21 @@
 "use client"
 
+import { useRouter, usePathname } from "next/navigation"
 import { Home, ShoppingCart, Calendar, BookOpen, Package } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface BottomNavProps {
-  activeTab: string
-  onTabChange: (tab: string) => void
-}
-
 const navItems = [
-  { id: "home", label: "ホーム", icon: Home },
-  { id: "shopping", label: "買い物", icon: ShoppingCart },
-  { id: "meal-plan", label: "献立", icon: Calendar },
-  { id: "recipes", label: "レシピ", icon: BookOpen },
-  { id: "inventory", label: "在庫", icon: Package },
+  { id: "home", label: "ホーム", icon: Home, path: "/home" },
+  { id: "shopping", label: "買い物", icon: ShoppingCart, path: "/shopping-list" },
+  { id: "meal-plan", label: "献立", icon: Calendar, path: "/meal-plan" },
+  { id: "recipes", label: "レシピ", icon: BookOpen, path: "/recipe" },
+  { id: "inventory", label: "在庫", icon: Package, path: "/inventory" },
 ]
 
-export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
+export function BottomNav() {
+  const router = useRouter()
+  const pathname = usePathname()
+
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-border bg-card"
@@ -24,12 +23,12 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
       aria-label="メインナビゲーション"
     >
       {navItems.map((item) => {
-        const isActive = activeTab === item.id
+        const isActive = pathname === item.path
         return (
           <button
             key={item.id}
             type="button"
-            onClick={() => onTabChange(item.id)}
+            onClick={() => router.push(item.path)}
             className={cn(
               "flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 rounded-lg px-3 py-1 transition-colors",
               isActive
