@@ -15,7 +15,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { getShoppingList, type ShoppingItem, type IngredientCategory } from "@/lib/mock-data"
+import { getShoppingList } from "@/lib/mock-data"
+import type { ShoppingItem, IngredientCategory } from "@/lib/types"
 
 interface ShoppingListScreenProps {
   onBack: () => void

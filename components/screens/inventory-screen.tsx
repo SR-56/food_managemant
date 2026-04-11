@@ -37,11 +37,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  ingredients as initialIngredients,
-  type Ingredient,
-  type IngredientCategory,
-} from "@/lib/mock-data"
+import { ingredients as initialIngredients } from "@/lib/mock-data"
+import type { Ingredient, IngredientCategory } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 type FilterOption = "all" | "in-stock" | "out-of-stock"
