@@ -19,8 +19,8 @@ import {
   getRecipeById,
   getIngredientById,
   dayNames,
-  type MealPlan,
 } from "@/lib/mock-data"
+import type { MealPlan } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 interface MealPlanScreenProps {

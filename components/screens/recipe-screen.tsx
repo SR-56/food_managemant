@@ -27,13 +27,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import {
-  recipes as initialRecipes,
-  ingredients as masterIngredients,
-  type Recipe,
-  type Ingredient,
-  type IngredientCategory,
-} from "@/lib/mock-data"
+import { recipes as initialRecipes, ingredients as masterIngredients } from "@/lib/mock-data"
+import type { Recipe, Ingredient, IngredientCategory } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 type RecipeView = "list" | "detail" | "edit"

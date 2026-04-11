@@ -23,7 +23,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { householdMembers, type HouseholdMember } from "@/lib/mock-data"
+import { householdMembers } from "@/lib/mock-data"
+import type { HouseholdMember } from "@/lib/types"
 
 interface SettingsScreenProps {
   onBack: () => void
