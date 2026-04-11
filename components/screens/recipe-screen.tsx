@@ -27,7 +27,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { recipes as initialRecipes, ingredients as masterIngredients } from "@/lib/mock-data"
+import { getRecipes } from "@/lib/api/recipes"
+import { getIngredients } from "@/lib/api/ingredients"
 import type { Recipe, Ingredient, IngredientCategory } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -84,7 +85,7 @@ function parseIngredientsFromText(
 }
 
 export function RecipeScreen({ onBack }: RecipeScreenProps) {
-  const [recipeList, setRecipeList] = useState<Recipe[]>(initialRecipes)
+  const [recipeList, setRecipeList] = useState<Recipe[]>(getRecipes)
   const [customIngredients, setCustomIngredients] = useState<Ingredient[]>([])
   const [view, setView] = useState<RecipeView>("list")
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null)
@@ -103,7 +104,7 @@ export function RecipeScreen({ onBack }: RecipeScreenProps) {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [parsedCandidates, setParsedCandidates] = useState<ParsedCandidate[]>([])
 
-  const allIngredients = [...masterIngredients, ...customIngredients]
+  const allIngredients = [...getIngredients(), ...customIngredients]
 
   const resolveIngredient = (id: string) => allIngredients.find((i) => i.id === id)
 
