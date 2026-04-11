@@ -103,7 +103,7 @@ export function ShoppingListScreen({ onBack }: ShoppingListScreenProps) {
       </div>
 
       {/* Shopping List */}
-      <main className="flex-1 overflow-y-auto pb-24">
+      <main className="flex-1 overflow-y-auto pb-36">
         {groupedItems.map((group) => (
           <div key={group.category}>
             <div className="sticky top-0 z-10 bg-background px-4 py-2">
@@ -145,7 +145,7 @@ export function ShoppingListScreen({ onBack }: ShoppingListScreenProps) {
       </main>
 
       {/* Fixed Footer Button */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-card p-4">
+      <div className="fixed bottom-16 left-0 right-0 border-t border-border bg-card p-4">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
