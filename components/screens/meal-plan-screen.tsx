@@ -13,22 +13,18 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import {
-  mealPlans as initialMealPlans,
-  recipes,
-  getRecipeById,
-  getIngredientById,
-  dayNames,
-} from "@/lib/mock-data"
+import { getMealPlans } from "@/lib/api/meal-plans"
+import { getRecipes, getRecipeById } from "@/lib/api/recipes"
+import { getIngredientById } from "@/lib/api/ingredients"
 import type { MealPlan } from "@/lib/types"
-import { cn } from "@/lib/utils"
+import { cn, dayNames } from "@/lib/utils"
 
 interface MealPlanScreenProps {
   onBack: () => void
 }
 
 export function MealPlanScreen({ onBack }: MealPlanScreenProps) {
-  const [plans, setPlans] = useState<MealPlan[]>(initialMealPlans)
+  const [plans, setPlans] = useState<MealPlan[]>(getMealPlans)
   const [weekOffset, setWeekOffset] = useState(0)
   const [selectingDate, setSelectingDate] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -117,7 +113,7 @@ export function MealPlanScreen({ onBack }: MealPlanScreenProps) {
     return plan?.recipeId ? getRecipeById(plan.recipeId) : null
   })()
 
-  const filteredRecipes = recipes.filter((r) =>
+  const filteredRecipes = getRecipes().filter((r) =>
     r.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 

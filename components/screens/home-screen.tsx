@@ -3,13 +3,11 @@
 import { ShoppingCart, Calendar, AlertTriangle, ChevronRight } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import {
-  mealPlans,
-  getRecipeById,
-  getOutOfStockIngredients,
-  getShoppingList,
-  dayNames,
-} from "@/lib/mock-data"
+import { getMealPlans } from "@/lib/api/meal-plans"
+import { getRecipeById } from "@/lib/api/recipes"
+import { getOutOfStockIngredients } from "@/lib/api/ingredients"
+import { getShoppingList } from "@/lib/api/shopping"
+import { dayNames } from "@/lib/utils"
 
 interface HomeScreenProps {
   onNavigate: (tab: string) => void
@@ -19,7 +17,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const shoppingList = getShoppingList()
   const outOfStock = getOutOfStockIngredients()
 
-  const weekDays = mealPlans.map((plan) => {
+  const weekDays = getMealPlans().map((plan) => {
     const d = new Date(plan.date)
     const recipe = plan.recipeId ? getRecipeById(plan.recipeId) : null
     return {

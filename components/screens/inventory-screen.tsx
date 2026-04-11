@@ -37,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ingredients as initialIngredients } from "@/lib/mock-data"
+import { getIngredients } from "@/lib/api/ingredients"
 import type { Ingredient, IngredientCategory } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -56,7 +56,7 @@ const filterLabels: Record<FilterOption, string> = {
 }
 
 export function InventoryScreen({ onBack }: InventoryScreenProps) {
-  const [items, setItems] = useState<Ingredient[]>(initialIngredients)
+  const [items, setItems] = useState<Ingredient[]>(getIngredients)
   const [filter, setFilter] = useState<FilterOption>("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [addDialogOpen, setAddDialogOpen] = useState(false)

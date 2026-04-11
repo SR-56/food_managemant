@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { householdMembers } from "@/lib/mock-data"
+import { getHouseholdMembers } from "@/lib/api/households"
 import type { HouseholdMember } from "@/lib/types"
 
 interface SettingsScreenProps {
@@ -37,7 +37,7 @@ export function SettingsScreen({ onBack, onLogout }: SettingsScreenProps) {
   const [tempName, setTempName] = useState(householdName)
   const [showAddMember, setShowAddMember] = useState(false)
   const [newMemberEmail, setNewMemberEmail] = useState("")
-  const [members, setMembers] = useState<HouseholdMember[]>(householdMembers)
+  const [members, setMembers] = useState<HouseholdMember[]>(getHouseholdMembers)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   const currentUser = members.find((m) => m.isCurrentUser)
