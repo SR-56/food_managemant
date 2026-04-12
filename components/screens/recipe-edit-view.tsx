@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, X, Check, ExternalLink, ClipboardPaste, Loader2, Search } from "lucide-react"
+import { Plus, X, Check, ClipboardPaste, Loader2, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -52,6 +52,7 @@ export function RecipeEditView({
   const [editIngredients, setEditIngredients] = useState<string[]>(
     initialRecipe?.ingredients ? [...initialRecipe.ingredients] : []
   )
+  const [localCustomIngredients, setLocalCustomIngredients] = useState<Ingredient[]>([])
   const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false)
   const [ingredientSearch, setIngredientSearch] = useState("")
   const [tempSelectedIngredients, setTempSelectedIngredients] = useState<string[]>([])
@@ -61,7 +62,8 @@ export function RecipeEditView({
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [parsedCandidates, setParsedCandidates] = useState<ParsedCandidate[]>([])
 
-  const resolveIngredient = (id: string) => allIngredients.find((i) => i.id === id)
+  const allResolvable = [...allIngredients, ...localCustomIngredients]
+  const resolveIngredient = (id: string) => allResolvable.find((i) => i.id === id)
 
   const handleOpenIngredientDialog = () => {
     setTempSelectedIngredients([...editIngredients])
@@ -121,15 +123,14 @@ export function RecipeEditView({
         inStock: false,
       }))
 
+    if (newCustomIngredients.length > 0) {
+      setLocalCustomIngredients((prev) => [...prev, ...newCustomIngredients])
+    }
+
     setEditIngredients((prev) => {
       const toAdd = selected.map((c) => c.id).filter((id) => !prev.includes(id))
       return [...prev, ...toAdd]
     })
-
-    if (newCustomIngredients.length > 0) {
-      // Notify parent to persist new ingredients — passed via onSave at save time
-      // For now, store locally until save
-    }
 
     setConfirmDialogOpen(false)
     setCopyPasteText("")
@@ -143,18 +144,12 @@ export function RecipeEditView({
 
   const handleSave = () => {
     if (!editName.trim()) return
-    const newCustomIngredients = editIngredients
-      .filter((id) => !allIngredients.find((i) => i.id === id))
-      .map((id) => {
-        const candidate = parsedCandidates.find((c) => c.id === id)
-        return {
-          id,
-          name: candidate?.name ?? id,
-          category: "その他" as IngredientCategory,
-          inStock: false,
-        }
-      })
-    onSave({ name: editName.trim(), url: editUrl.trim(), ingredients: editIngredients, newCustomIngredients })
+    onSave({
+      name: editName.trim(),
+      url: editUrl.trim(),
+      ingredients: editIngredients,
+      newCustomIngredients: localCustomIngredients,
+    })
   }
 
   return (
