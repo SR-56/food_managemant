@@ -17,12 +17,11 @@ import {
 } from "@/components/ui/alert-dialog"
 import { getShoppingList } from "@/lib/api/shopping"
 import type { ShoppingItem, IngredientCategory } from "@/lib/types"
+import { categoryOrder } from "@/lib/constants"
 
 interface ShoppingListScreenProps {
   onBack: () => void
 }
-
-const categoryOrder: IngredientCategory[] = ["野菜", "肉類", "魚類", "調味料", "その他"]
 
 export function ShoppingListScreen({ onBack }: ShoppingListScreenProps) {
   const [items, setItems] = useState<ShoppingItem[]>(() => getShoppingList())

@@ -40,14 +40,13 @@ import {
 import { getIngredients } from "@/lib/api/ingredients"
 import type { Ingredient, IngredientCategory } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { categoryOrder } from "@/lib/constants"
 
 type FilterOption = "all" | "in-stock" | "out-of-stock"
 
 interface InventoryScreenProps {
   onBack: () => void
 }
-
-const categoryOrder: IngredientCategory[] = ["野菜", "肉類", "魚類", "調味料", "その他"]
 
 const filterLabels: Record<FilterOption, string> = {
   all: "すべて",
