@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronDown, Settings, LogOut } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
 export function UserMenu() {
   const [open, setOpen] = useState(false)
@@ -20,6 +21,13 @@ export function UserMenu() {
     }
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [open])
+
+  const handleLogout = async () => {
+    setOpen(false)
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push("/login")
+  }
 
   return (
     <div ref={menuRef} className="relative">
@@ -54,10 +62,7 @@ export function UserMenu() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                setOpen(false)
-                router.push("/login")
-              }}
+              onClick={handleLogout}
               className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-destructive hover:bg-accent"
             >
               <LogOut className="h-4 w-4" />

@@ -3,10 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-
-interface LoginScreenProps {
-  onLogin: () => void
-}
+import { createClient } from "@/lib/supabase/client"
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -31,18 +28,24 @@ function GoogleIcon({ className }: { className?: string }) {
   )
 }
 
-export function LoginScreen({ onLogin }: LoginScreenProps) {
+export function LoginScreen() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setError("")
     setIsLoading(true)
-    // Prototype: simulate a brief loading then log in
-    setTimeout(() => {
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+    if (error) {
+      setError("ログインに失敗しました。もう一度お試しください。")
       setIsLoading(false)
-      onLogin()
-    }, 800)
+    }
   }
 
   return (
