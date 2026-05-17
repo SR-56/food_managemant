@@ -8,18 +8,7 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-
-    if (!error && data.user) {
-      await supabase.from("users").upsert(
-        {
-          id: data.user.id,
-          display_name: data.user.user_metadata?.full_name ?? data.user.email ?? "",
-          profile_image_url: data.user.user_metadata?.avatar_url ?? null,
-        },
-        { onConflict: "id" }
-      )
-    }
+    await supabase.auth.exchangeCodeForSession(code)
   }
 
   return NextResponse.redirect(new URL(next, requestUrl.origin))
