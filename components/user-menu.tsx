@@ -9,12 +9,16 @@ import type { User } from "@supabase/supabase-js"
 export function UserMenu() {
   const [open, setOpen] = useState(false)
   const [user, setUser] = useState<User | null>(null)
+  const [householdName, setHouseholdName] = useState("")
   const menuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
+    fetch("/api/households/me")
+      .then((r) => r.json())
+      .then(({ household }) => { if (household?.name) setHouseholdName(household.name) })
   }, [])
 
   useEffect(() => {
@@ -50,7 +54,7 @@ export function UserMenu() {
         aria-haspopup="true"
       >
         {/* 家庭名は #23 で実装予定 */}
-        <span className="max-w-[100px] truncate text-xs">マイホーム</span>
+        <span className="max-w-[100px] truncate text-xs">{householdName || "マイホーム"}</span>
         <ChevronDown className="h-4 w-4" />
       </button>
       {open && (
