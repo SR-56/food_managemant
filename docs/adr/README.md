@@ -8,3 +8,5 @@
 | [0004](0004-branch-and-release-strategy.md) | ブランチ戦略・リリース運用 | Accepted | GitHub Flow（main=Production）。Conventional Commits＋gh release create でバージョン管理。マージはMerge commit |
 | [0005](0005-code-structure-before-backend.md) | バックエンド接続前のコード構造整理方針 | Accepted | Next.js Route Groupsで`(marketing)/`・`(app)/`に分離。`auth/callback/`はOAuthコールバック専用 |
 | [0006](0006-database-selection.md) | データベース選定 | Accepted | Supabaseを採用。Google OAuth・RLS・Next.js SDKがすべて標準対応で、MVP無料枠内に収まる唯一の選択肢 |
+| [0007](0007-authentication.md) | 認証方式の選定 | Accepted | Supabase Auth + Google OAuthを採用。NextAuth.js不要で、RLSと認証を一体化できる |
+| [0008](0008-household-management.md) | 家庭管理の設計方針 | Accepted | MVP：初回ログイン時に家庭を自動作成、メールアドレスでメンバー追加。将来的に招待リンク方式へ拡張予定 |
