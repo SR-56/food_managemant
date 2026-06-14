@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createClient as createServiceClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
@@ -11,7 +12,14 @@ export async function GET(request: Request) {
     const { data } = await supabase.auth.exchangeCodeForSession(code)
 
     if (data.user) {
-      const { data: existing } = await supabase
+      // exchangeCodeForSession後は同一リクエスト内でCookieが更新されないため
+      // RLSをバイパスするサービスロールクライアントで家庭作成を行う
+      const admin = createServiceClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+
+      const { data: existing } = await admin
         .from("household_members")
         .select("id")
         .eq("user_id", data.user.id)
@@ -23,14 +31,14 @@ export async function GET(request: Request) {
           data.user.user_metadata?.full_name ??
           data.user.user_metadata?.name ??
           "ユーザー"
-        const { data: household } = await supabase
+        const { data: household } = await admin
           .from("households")
           .insert({ name: `${userName}の家庭` })
           .select("id")
           .single()
 
         if (household) {
-          await supabase.from("household_members").insert({
+          await admin.from("household_members").insert({
             user_id: data.user.id,
             household_id: household.id,
             role: "owner",

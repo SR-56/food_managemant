@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createClient as createServiceClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 
 export async function POST(
@@ -13,7 +14,26 @@ export async function POST(
   const { email } = await request.json()
   if (!email) return NextResponse.json({ error: "email is required" }, { status: 400 })
 
-  const { data: targetUser } = await supabase
+  const admin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  // 操作者が対象家庭のメンバーであることを確認（認可チェック）
+  const { data: authCheck } = await admin
+    .from("household_members")
+    .select("id")
+    .eq("household_id", householdId)
+    .eq("user_id", user.id)
+    .is("deleted_at", null)
+    .maybeSingle()
+
+  if (!authCheck) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  }
+
+  // 招待先ユーザーをメールアドレスで検索（RLSバイパス）
+  const { data: targetUser } = await admin
     .from("users")
     .select("id")
     .eq("email", email)
@@ -26,7 +46,8 @@ export async function POST(
     )
   }
 
-  const { data: existing } = await supabase
+  // 重複チェック
+  const { data: existing } = await admin
     .from("household_members")
     .select("id")
     .eq("household_id", householdId)
@@ -35,13 +56,11 @@ export async function POST(
     .maybeSingle()
 
   if (existing) {
-    return NextResponse.json(
-      { error: "すでにメンバーです" },
-      { status: 409 }
-    )
+    return NextResponse.json({ error: "すでにメンバーです" }, { status: 409 })
   }
 
-  const { error } = await supabase.from("household_members").insert({
+  // adminクライアントでINSERT（RLSの再帰評価を回避）
+  const { error } = await admin.from("household_members").insert({
     household_id: householdId,
     user_id: targetUser.id,
     role: "member",
