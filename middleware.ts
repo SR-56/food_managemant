@@ -25,7 +25,17 @@ export async function middleware(request: NextRequest) {
 
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser()
+
+  // リフレッシュトークンが無効な場合はCookieを削除して/loginへ
+  if (error?.code === "refresh_token_not_found") {
+    const url = request.nextUrl.clone()
+    url.pathname = "/login"
+    const response = NextResponse.redirect(url)
+    request.cookies.getAll().forEach(({ name }) => response.cookies.delete(name))
+    return response
+  }
 
   const { pathname } = request.nextUrl
   const isPublicPath =
