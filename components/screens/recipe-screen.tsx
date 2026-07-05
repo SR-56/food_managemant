@@ -1,8 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { getRecipes } from "@/lib/api/recipes"
-import { getIngredients } from "@/lib/api/ingredients"
+import { useState, useEffect } from "react"
 import type { Recipe, Ingredient } from "@/lib/types"
 import { RecipeListView } from "@/components/screens/recipe-list-view"
 import { RecipeDetailView } from "@/components/screens/recipe-detail-view"
@@ -15,13 +13,22 @@ interface RecipeScreenProps {
 }
 
 export function RecipeScreen({ onBack }: RecipeScreenProps) {
-  const [recipeList, setRecipeList] = useState<Recipe[]>(getRecipes)
-  const [customIngredients, setCustomIngredients] = useState<Ingredient[]>([])
+  const [recipeList, setRecipeList] = useState<Recipe[]>([])
+  const [allIngredients, setAllIngredients] = useState<Ingredient[]>([])
   const [view, setView] = useState<RecipeView>("list")
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null)
   const [isNewRecipe, setIsNewRecipe] = useState(false)
 
-  const allIngredients = [...getIngredients(), ...customIngredients]
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/recipes").then((r) => r.json()),
+      fetch("/api/ingredients").then((r) => r.json()),
+    ]).then(([recipes, ingredients]) => {
+      if (Array.isArray(recipes)) setRecipeList(recipes)
+      if (Array.isArray(ingredients)) setAllIngredients(ingredients)
+    })
+  }, [])
+
   const selectedRecipe = recipeList.find((r) => r.id === selectedRecipeId)
 
   const handleOpenDetail = (recipeId: string) => {
@@ -34,7 +41,7 @@ export function RecipeScreen({ onBack }: RecipeScreenProps) {
     setView("edit")
   }
 
-  const handleSaveRecipe = ({
+  const handleSaveRecipe = async ({
     name,
     url,
     ingredients,
@@ -45,36 +52,67 @@ export function RecipeScreen({ onBack }: RecipeScreenProps) {
     ingredients: string[]
     newCustomIngredients: Ingredient[]
   }) => {
-    if (newCustomIngredients.length > 0) {
-      setCustomIngredients((prev) => [...prev, ...newCustomIngredients])
+    // 新規食材をAPIで作成して一時IDと本物のIDをマッピング
+    const idMap = new Map<string, string>()
+    for (const ing of newCustomIngredients) {
+      const res = await fetch("/api/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: ing.name, category: ing.category }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const realIngredientId = (data.ingredients as { id: string } | null)?.id
+        if (realIngredientId) idMap.set(ing.id, realIngredientId)
+      }
     }
 
+    // 一時IDを本物のIDに置換
+    const resolvedIngredients = ingredients.map((id) => idMap.get(id) ?? id)
+
     if (isNewRecipe) {
-      const newRecipe: Recipe = {
-        id: `r${Date.now()}`,
-        name,
-        ingredients,
-        ...(url && { url }),
+      const res = await fetch("/api/recipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, url, ingredients: resolvedIngredients }),
+      })
+      if (res.ok) {
+        const newRecipe: Recipe = await res.json()
+        setRecipeList((prev) => [newRecipe, ...prev])
+        setSelectedRecipeId(newRecipe.id)
       }
-      setRecipeList((prev) => [...prev, newRecipe])
-      setSelectedRecipeId(newRecipe.id)
     } else if (selectedRecipeId) {
-      setRecipeList((prev) =>
-        prev.map((r) =>
-          r.id === selectedRecipeId
-            ? { ...r, name, ingredients, url: url || undefined }
-            : r
+      const res = await fetch(`/api/recipes/${selectedRecipeId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, url, ingredients: resolvedIngredients }),
+      })
+      if (res.ok) {
+        const updated: Recipe = await res.json()
+        setRecipeList((prev) =>
+          prev.map((r) => (r.id === selectedRecipeId ? updated : r))
         )
-      )
+      }
     }
+
+    // 新規食材があった場合は ingredients 一覧を再取得
+    if (newCustomIngredients.length > 0) {
+      fetch("/api/ingredients")
+        .then((r) => r.json())
+        .then((data) => { if (Array.isArray(data)) setAllIngredients(data) })
+    }
+
     setView("detail")
   }
 
-  const handleDeleteRecipe = () => {
+  const handleDeleteRecipe = async () => {
     if (!selectedRecipeId) return
-    setRecipeList((prev) => prev.filter((r) => r.id !== selectedRecipeId))
-    setSelectedRecipeId(null)
-    setView("list")
+    const res = await fetch(`/api/recipes/${selectedRecipeId}`, { method: "DELETE" })
+    if (res.ok) {
+      setRecipeList((prev) => prev.filter((r) => r.id !== selectedRecipeId))
+      setSelectedRecipeId(null)
+      setView("list")
+    }
   }
 
   if (view === "list") {

@@ -11,3 +11,4 @@
 | [0007](0007-authentication.md) | 認証方式の選定 | Accepted | Supabase Auth + Google OAuthを採用。NextAuth.js不要で、RLSと認証を一体化できる |
 | [0008](0008-household-management.md) | 家庭管理の設計方針 | Accepted | MVP：初回ログイン時に家庭を自動作成、メールアドレスでメンバー追加。将来的に招待リンク方式へ拡張予定 |
 | [0009](0009-inventory-design.md) | 在庫管理の設計方針 | Accepted | 在庫画面はinventoryテーブルのみ参照。家庭作成時にDBトリガーでグローバルマスタ全件をinventoryに初期化 |
+| [0010](0010-recipe-management.md) | レシピ管理の設計方針 | Accepted | ソフトデリート採用（meal_plans参照保護）。食材選択はinventoryでなくingredientsから（在庫無関係に選択可）|
