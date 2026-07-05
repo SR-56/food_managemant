@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Search, Filter, Plus, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
@@ -37,12 +37,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getIngredients } from "@/lib/api/ingredients"
-import type { Ingredient, IngredientCategory } from "@/lib/types"
+import type { IngredientCategory } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { categoryOrder } from "@/lib/constants"
 
 type FilterOption = "all" | "in-stock" | "out-of-stock"
+
+interface InventoryItem {
+  id: string
+  in_stock: boolean
+  ingredients: {
+    id: string
+    name: string
+    category: IngredientCategory
+    household_id: string | null
+  }
+}
 
 interface InventoryScreenProps {
   onBack: () => void
@@ -55,69 +65,90 @@ const filterLabels: Record<FilterOption, string> = {
 }
 
 export function InventoryScreen({ onBack }: InventoryScreenProps) {
-  const [items, setItems] = useState<Ingredient[]>(getIngredients)
+  const [items, setItems] = useState<InventoryItem[]>([])
   const [filter, setFilter] = useState<FilterOption>("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [newName, setNewName] = useState("")
   const [newCategory, setNewCategory] = useState<IngredientCategory>("野菜")
-  const [deleteTarget, setDeleteTarget] = useState<Ingredient | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<InventoryItem | null>(null)
+
+  useEffect(() => {
+    fetch("/api/inventory")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setItems(data) })
+  }, [])
 
   const filteredItems = useMemo(() => {
     let filtered = items
 
     if (searchQuery) {
       filtered = filtered.filter((i) =>
-        i.name.toLowerCase().includes(searchQuery.toLowerCase())
+        i.ingredients.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
     if (filter === "in-stock") {
-      filtered = filtered.filter((i) => i.inStock)
+      filtered = filtered.filter((i) => i.in_stock)
     } else if (filter === "out-of-stock") {
-      filtered = filtered.filter((i) => !i.inStock)
+      filtered = filtered.filter((i) => !i.in_stock)
     }
 
     return filtered
   }, [items, filter, searchQuery])
 
   const groupedItems = useMemo(() => {
-    const groups = new Map<IngredientCategory, Ingredient[]>()
+    const groups = new Map<IngredientCategory, InventoryItem[]>()
     for (const item of filteredItems) {
-      const existing = groups.get(item.category) ?? []
+      const cat = item.ingredients.category
+      const existing = groups.get(cat) ?? []
       existing.push(item)
-      groups.set(item.category, existing)
+      groups.set(cat, existing)
     }
     return categoryOrder
       .filter((cat) => groups.has(cat))
       .map((cat) => ({ category: cat, items: groups.get(cat)! }))
   }, [filteredItems])
 
-  const toggleStock = (id: string) => {
+  const toggleStock = async (item: InventoryItem) => {
+    const newValue = !item.in_stock
     setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, inStock: !item.inStock } : item
-      )
+      prev.map((i) => i.id === item.id ? { ...i, in_stock: newValue } : i)
     )
+    await fetch(`/api/inventory/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ in_stock: newValue }),
+    })
   }
 
-  const handleAddIngredient = () => {
+  const handleAddIngredient = async () => {
     if (!newName.trim()) return
-    const newItem: Ingredient = {
-      id: `custom_${Date.now()}`,
-      name: newName.trim(),
-      category: newCategory,
-      inStock: true,
+    const res = await fetch("/api/inventory", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newName.trim(), category: newCategory }),
+    })
+    if (res.ok) {
+      const newItem = await res.json()
+      setItems((prev) => {
+        const exists = prev.some((i) => i.id === newItem.id)
+        return exists
+          ? prev.map((i) => i.id === newItem.id ? newItem : i)
+          : [...prev, newItem]
+      })
     }
-    setItems((prev) => [...prev, newItem])
     setNewName("")
     setNewCategory("野菜")
     setAddDialogOpen(false)
   }
 
-  const handleDeleteIngredient = () => {
+  const handleDeleteIngredient = async () => {
     if (!deleteTarget) return
-    setItems((prev) => prev.filter((item) => item.id !== deleteTarget.id))
+    const res = await fetch(`/api/inventory/${deleteTarget.id}`, { method: "DELETE" })
+    if (res.ok) {
+      setItems((prev) => prev.filter((i) => i.id !== deleteTarget.id))
+    }
     setDeleteTarget(null)
   }
 
@@ -213,26 +244,26 @@ export function InventoryScreen({ onBack }: InventoryScreenProps) {
                   key={item.id}
                   className="flex items-center justify-between bg-card px-4 py-3"
                 >
-                  <span className="text-sm text-foreground">{item.name}</span>
+                  <span className="text-sm text-foreground">{item.ingredients.name}</span>
                   <div className="flex items-center gap-2">
                     <span
                       className={cn(
                         "text-xs",
-                        item.inStock ? "text-primary" : "text-muted-foreground"
+                        item.in_stock ? "text-primary" : "text-muted-foreground"
                       )}
                     >
-                      {item.inStock ? "あり" : "なし"}
+                      {item.in_stock ? "あり" : "なし"}
                     </span>
                     <Switch
-                      checked={item.inStock}
-                      onCheckedChange={() => toggleStock(item.id)}
-                      aria-label={`${item.name}の在庫状態を切り替え`}
+                      checked={item.in_stock}
+                      onCheckedChange={() => toggleStock(item)}
+                      aria-label={`${item.ingredients.name}の在庫状態を切り替え`}
                     />
                     <button
                       type="button"
                       onClick={() => setDeleteTarget(item)}
                       className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground hover:text-destructive"
-                      aria-label={`${item.name}を削除`}
+                      aria-label={`${item.ingredients.name}を削除`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -281,11 +312,7 @@ export function InventoryScreen({ onBack }: InventoryScreenProps) {
           <DialogFooter className="flex-row gap-2">
             <Button
               variant="outline"
-              onClick={() => {
-                setAddDialogOpen(false)
-                setNewName("")
-                setNewCategory("野菜")
-              }}
+              onClick={() => { setAddDialogOpen(false); setNewName(""); setNewCategory("野菜") }}
               className="h-11 flex-1 bg-transparent"
             >
               キャンセル
@@ -307,7 +334,7 @@ export function InventoryScreen({ onBack }: InventoryScreenProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-foreground">食材を削除しますか？</AlertDialogTitle>
             <AlertDialogDescription>
-              「{deleteTarget?.name}」を削除します。この操作は取り消せません。
+              「{deleteTarget?.ingredients.name}」を在庫リストから削除します。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
