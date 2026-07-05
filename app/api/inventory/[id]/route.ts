@@ -39,8 +39,13 @@ export async function DELETE(
 
   const { id } = await params
 
-  // inventoryレコードを取得して家庭専用食材か確認
-  const { data: inv } = await supabase
+  const admin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  // admin で取得して RLS による join ブロックを回避
+  const { data: inv } = await admin
     .from("inventory")
     .select("ingredient_id, ingredients(household_id)")
     .eq("id", id)
@@ -48,18 +53,18 @@ export async function DELETE(
 
   if (!inv) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-  // inventoryを削除
-  const { error } = await supabase.from("inventory").delete().eq("id", id)
+  // inventoryを削除（admin で RLS をバイパス）
+  const { error } = await admin.from("inventory").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
 
   // 家庭専用食材ならingredientsも削除
-  const ingredient = inv.ingredients as unknown as { household_id: string | null }
-  if (ingredient?.household_id !== null) {
-    const admin = createServiceClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-    await admin.from("ingredients").delete().eq("id", inv.ingredient_id)
+  const ingredient = inv.ingredients as unknown as { household_id: string | null } | null
+  if (ingredient !== null && ingredient?.household_id !== null) {
+    const { error: ingError } = await admin
+      .from("ingredients")
+      .delete()
+      .eq("id", inv.ingredient_id)
+    if (ingError) console.error("ingredients delete error:", ingError)
   }
 
   return NextResponse.json({ success: true })
